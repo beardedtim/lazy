@@ -1,4 +1,5 @@
 const { Lazy, operators } = require("./");
+const EE = require("events");
 
 describe("Lazy", () => {
   it("creates an async iterable out of a generator function", async done => {
@@ -458,6 +459,28 @@ describe("Operators", () => {
         .toArray(merged)
         .then(list => expect(list).toEqual([2, 4]))
         .then(done);
+    });
+  });
+
+  describe("fromEvent", () => {
+    it("returns a Lazy", () => {
+      const lazy = operators.fromEvent("event", {});
+
+      expect(lazy instanceof Lazy).toBe(true);
+    });
+
+    it("returns an iterator of the events of the given emitter", async done => {
+      const event = new EE();
+
+      const iter = operators.fromEvent("event", event);
+      const message = {};
+
+      operators.forEach(value => {
+        expect(value).toBe(message);
+        done();
+      }, iter);
+
+      event.emit("event", message);
     });
   });
 });

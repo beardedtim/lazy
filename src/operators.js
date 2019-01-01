@@ -230,6 +230,23 @@ const toArray = async iter => {
   return list;
 };
 
+const fromEvent = curry(
+  (event, target) =>
+    new Lazy(async function*() {
+      let resolve;
+      let prom = new Promise(res => (resolve = res));
+
+      target.on(event, message => {
+        resolve(message);
+        prom = new Promise(res => (resolve = res));
+      });
+
+      while (true) {
+        yield prom;
+      }
+    })
+);
+
 module.exports = {
   empty,
   merge,
@@ -246,5 +263,6 @@ module.exports = {
   take,
   range,
   compose,
-  curry
+  curry,
+  fromEvent
 };

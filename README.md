@@ -143,3 +143,4 @@ const doubled = range(1, 5, n => n * 2);
     - `flatMap: (a -> Lazy b) -> Lazy a -> Lazy b`
     - `range: number -> number? -> (number -> a)? -> Lazy a`
     - `toArray: Lazy a -> Promise Array a`
+    - `fromEvent: string -> EventEmitter a -> Lazy a`
