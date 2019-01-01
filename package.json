@@ -1,0 +1,29 @@
+{
+  "name": "@beardedtim/lazy",
+  "version": "0.0.2",
+  "main": "index.js",
+  "description": "A utility belt for async iterables",
+  "keywords": [
+    "generators",
+    "async-await",
+    "for-await",
+    "iterators",
+    "async-iterators"
+  ],
+  "author": "Tim roberts <timiroberts@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index.js",
+    "test": "jest",
+    "clean": "prettier **/*.{js,md} --write; git add .",
+    "commit": "git commit"
+  },
+  "devDependencies": {
+    "jest": "^23.6.0",
+    "prettier": "^1.15.3"
+  },
+  "jest": {
+    "transform": {}
+  },
+  "repository": "git@github.com:beardedtim/lazy.git"
+}
