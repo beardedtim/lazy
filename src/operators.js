@@ -246,9 +246,7 @@ const fromEvent = curry(
 
       target.on(event, producer.next);
 
-      while (true) {
-        yield* producer;
-      }
+      yield* producer;
     })
 );
 
