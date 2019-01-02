@@ -1,5 +1,5 @@
 const Lazy = require("./");
-
+const Producer = require("./producer");
 /**
  * Operators
  *
@@ -230,19 +230,24 @@ const toArray = async iter => {
   return list;
 };
 
+/**
+ * Creates a Lazy out of an event and target
+ *
+ * @type {function(string, EventEmitter): Lazy}
+ * @curriable
+ * @param {string} event - The event
+ * @param {EventEmitter} target - The target that emits the event
+ * @returns {Lazy}
+ */
 const fromEvent = curry(
   (event, target) =>
     new Lazy(async function*() {
-      let resolve;
-      let prom = new Promise(res => (resolve = res));
+      const producer = new Producer();
 
-      target.on(event, message => {
-        resolve(message);
-        prom = new Promise(res => (resolve = res));
-      });
+      target.on(event, producer.next);
 
       while (true) {
-        yield prom;
+        yield* producer;
       }
     })
 );
