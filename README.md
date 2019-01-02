@@ -124,7 +124,15 @@ const doubled = range(1, 5, n => n * 2);
   - Arguments:
     - `generator`: The generator function to wrap
 
-- `operators`: The higher order functions that we use to manipulate the Lazy iterators
+- `Producer`: A way to create an Async Iterator out of an Observable-like
+  interface.
+
+  - Methods:
+    - `next`: Emits that value into the Async Iteration
+    - `complete`: Completes the iteration
+    - `error`: Throws an error to the consumer and ends the iteration
+
+- `operators`: The higher order functions that we use to manipulate or get values from the Lazy iterators
 
   - _You can find examples of usage inside of the `index.test.js` file._
 

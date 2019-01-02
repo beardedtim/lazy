@@ -1,4 +1,4 @@
-const { Lazy, operators } = require("./");
+const { Lazy, Producer, operators } = require("./");
 const EE = require("events");
 
 describe("Lazy", () => {
@@ -17,6 +17,71 @@ describe("Lazy", () => {
 
     expect(values).toEqual([1, 2]);
     return done();
+  });
+});
+
+describe("Producer", () => {
+  it("is a Lazy", () => {
+    const producer = new Producer();
+
+    expect(producer instanceof Lazy).toBe(true);
+  });
+
+  it("produces a new value to the iteration when next is called", done => {
+    const producer = new Producer();
+    const message = {};
+
+    operators.forEach(value => {
+      expect(value).toBe(message);
+      return done();
+    }, producer);
+
+    producer.next(message);
+  });
+
+  it("does not produce values after complete is called", done => {
+    const producer = new Producer();
+    const message = {};
+
+    operators.toArray(producer).then(values => {
+      expect(values.length).toBe(1);
+      return done();
+    });
+
+    producer.next(message);
+    producer.complete();
+    producer.next(message);
+  });
+
+  it("does not produce values after error is called", done => {
+    const producer = new Producer();
+    const message = {};
+
+    operators.toArray(producer).then(values => {
+      expect(values.length).toBe(1);
+      return done();
+    });
+
+    producer.next(message);
+    producer.error();
+    producer.next(message);
+  });
+
+  it("produces an error when error is called", async done => {
+    const producer = new Producer();
+    const message = {};
+
+    setTimeout(() => producer.error(message), 100);
+
+    try {
+      for await (let v of producer) {
+        expect(v).not.toBeDefined();
+      }
+    } catch (e) {
+      expect(e).toBe(message);
+    } finally {
+      done();
+    }
   });
 });
 
