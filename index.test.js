@@ -548,4 +548,80 @@ describe("Operators", () => {
       event.emit("event", message);
     });
   });
+
+  describe("takeUntil", () => {
+    it("returns a Lazy", () => {
+      const iter = operators.takeUntil(a => true, operators.empty());
+
+      expect(iter instanceof Lazy).toBe(true);
+    });
+
+    it('takes values from the iterator until the predicate returns true', done => {
+      const pred = (num) => num ? true : false
+      const base = operators.range(0)
+      const iter = operators.takeUntil(pred, base)
+
+      return operators.toArray(iter)
+        .then(list => {
+          expect(list.length).toBe(1)
+        }).then(done)
+    })
+  });
+
+  describe("takeWhile", () => {
+    it("returns a Lazy", () => {
+      const iter = operators.takeWhile(a => true, operators.empty());
+
+      expect(iter instanceof Lazy).toBe(true);
+    });
+
+    it('takes values from the iterator while the predicate returns true', done => {
+      const pred = (num) => num === 0 ? true : false
+      const base = operators.range(0)
+      const iter = operators.takeWhile(pred, base)
+
+      return operators.toArray(iter)
+        .then(list => {
+          expect(list.length).toBe(1)
+        }).then(done)
+    })
+  });
+
+  describe("skipUntil", () => {
+    it("returns a Lazy", () => {
+      const iter = operators.skipUntil(a => true, operators.empty());
+
+      expect(iter instanceof Lazy).toBe(true);
+    });
+
+    it('skips values until the predicate returns true', done => {
+      const pred = (num) => num === 0 ? false : true
+      const base = operators.range(0, 1)
+      const iter = operators.skipUntil(pred, base)
+
+      return operators.toArray(iter)
+        .then(list => {
+          expect(list.length).toBe(1)
+        }).then(done)
+    })
+  });
+
+  describe("skipWhile", () => {
+    it("returns a Lazy", () => {
+      const iter = operators.skipWhile(a => true, operators.empty());
+
+      expect(iter instanceof Lazy).toBe(true);
+    });
+
+    it('skips values until the predicate returns false', done => {
+      const pred = (num) => num === 0 ? true : false
+      const base = operators.range(0, 1)
+      const iter = operators.skipWhile(pred, base)
+
+      return operators.toArray(iter)
+        .then(list => {
+          expect(list.length).toBe(1)
+        }).then(done)
+    })
+  });
 });
