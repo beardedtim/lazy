@@ -26,7 +26,7 @@ const curry = fn => (...args) =>
  * @returns {Lazy}
  */
 const range = (start, end = Infinity, mapper = a => a) =>
-  new Lazy(function*() {
+  new Lazy(function* () {
     let i = start;
     while (i <= end) {
       yield mapper(i++);
@@ -42,7 +42,7 @@ const range = (start, end = Infinity, mapper = a => a) =>
  */
 const take = curry(
   (num, iter) =>
-    new Lazy(async function*() {
+    new Lazy(async function* () {
       let remaining = num;
       for await (let v of iter) {
         if (!remaining) {
@@ -60,7 +60,7 @@ const take = curry(
  * @return {Lazy}
  */
 const fromArray = arr =>
-  new Lazy(function*() {
+  new Lazy(function* () {
     for (let v of arr) {
       yield v;
     }
@@ -75,7 +75,7 @@ const fromArray = arr =>
  */
 const map = curry(
   (fn, iter) =>
-    new Lazy(async function*() {
+    new Lazy(async function* () {
       for await (let v of iter) {
         yield fn(v);
       }
@@ -108,7 +108,7 @@ const reduce = curry(async (fn, start, iter) => {
  */
 const flatMap = curry(
   (fn, iter) =>
-    new Lazy(async function*() {
+    new Lazy(async function* () {
       for await (let v of iter) {
         yield* fn(v);
       }
@@ -124,7 +124,7 @@ const flatMap = curry(
  */
 const filter = curry(
   (pred, iter) =>
-    new Lazy(async function*() {
+    new Lazy(async function* () {
       for await (let v of iter) {
         if (pred(v)) {
           yield v;
@@ -142,7 +142,7 @@ const filter = curry(
  */
 const skip = curry(
   (num, iter) =>
-    new Lazy(async function*() {
+    new Lazy(async function* () {
       let remaning = num;
       for await (let v of iter) {
         if (remaning) {
@@ -157,7 +157,7 @@ const skip = curry(
 
 const tap = curry(
   (fn, iter) =>
-    new Lazy(async function*() {
+    new Lazy(async function* () {
       for await (let v of iter) {
         fn(v);
         yield v;
@@ -167,7 +167,7 @@ const tap = curry(
 
 const merge = curry(
   (fn, iterA, iterB) =>
-    new Lazy(async function*() {
+    new Lazy(async function* () {
       // We need generator functions instead of
       // iterators because we need to run them
       // both at the same time and keep pace
@@ -190,7 +190,7 @@ const merge = curry(
 );
 
 const empty = () =>
-  new Lazy(function*() {
+  new Lazy(function* () {
     return;
   });
 
@@ -200,7 +200,7 @@ const empty = () =>
  * @returns {Lazy}
  */
 const fromPromise = prom =>
-  new Lazy(async function*() {
+  new Lazy(async function* () {
     yield prom;
   });
 /**
@@ -241,7 +241,7 @@ const toArray = async iter => {
  */
 const fromEvent = curry(
   (event, target) =>
-    new Lazy(async function*() {
+    new Lazy(async function* () {
       const producer = new Producer();
 
       target.on(event, producer.next);
@@ -249,6 +249,133 @@ const fromEvent = curry(
       yield* producer;
     })
 );
+
+/**
+ * Takes values until the predicate returns true
+ * 
+ * @type {function(function(*): boolean, Lazy): Lazy}
+ * @curriable
+ * @param {function(*): boolean} pred - The predicate function to test
+ * @param {Lazy} iter - The iterator to test against
+ * @returns {Lazy}
+ */
+const takeUntil = curry(
+  (pred, iter) =>
+    new Lazy(async function* () {
+      for await (const v of iter) {
+        if (pred(v)) {
+          break;
+        }
+        yield v
+      }
+    })
+)
+
+/**
+ * Takes values while the predicate returns true
+ * 
+ * @type {function(function(*): boolean, Lazy): Lazy}
+ * @curriable
+ * @param {function(*): boolean} pred - The predicate function to test
+ * @param {Lazy} iter - The iterator to test against
+ * @returns {Lazy}
+ */
+const takeWhile = curry(
+  (pred, iter) =>
+    new Lazy(async function* () {
+      for await (const v of iter) {
+        if (!pred(v)) {
+          break;
+        }
+        yield v
+      }
+    })
+)
+
+/**
+ * Returns a promise that resolves in ms milliseconds
+ * 
+ * @param {number} ms - The time in milliseconds to sleep
+ * @returns {Promise<void>}
+ */
+const sleep = ms => new Promise(res => setTimeout(res, ms))
+
+/**
+ * Delays the emittion of a value by ms milliseconds
+ * 
+ * @type {function(number, Lazy): Lazy}
+ * @curriable
+ * @param {number} ms - The milliseconds to delay by
+ * @param {Lazy} iter - The async iterable to delay
+ * @returns {Lazy}
+ */
+const delay = curry(
+  (ms, iter) =>
+    new Lazy(async function* () {
+      for await (const v of iter) {
+        await sleep(ms)
+        yield v
+      }
+    })
+)
+
+/**
+ * Does not return values until the predicate
+ * function returns falsey
+ * 
+ * @type {function(function(*): boolean, Lazy): Lazy}
+ * @curriable
+ * @param {function(*): boolean} pred - The function to test
+ * @param {Lazy} iter - The async iterable to test against
+ * @returns {Lazy}
+ */
+const skipWhile = curry(
+  (pred, iter) =>
+    new Lazy(async function* () {
+      let hasSkipped = false
+      for await (const v of iter) {
+        if (hasSkipped) {
+          yield v
+        }
+
+        if (pred(v)) {
+          continue
+        }
+
+        hasSkipped = true
+        yield v
+      }
+    })
+)
+
+/**
+ * Does not return values until the predicate
+ * function returns truthy
+ * 
+ * @type {function(function(*): boolean, Lazy): Lazy}
+ * @curriable
+ * @param {function(*): boolean} pred - The function to test
+ * @param {Lazy} iter - The async iterable to test against
+ * @returns {Lazy}
+ */
+const skipUntil = curry(
+  (pred, iter) =>
+    new Lazy(async function* () {
+      let hasSkipped = false
+      for await (const v of iter) {
+        if (hasSkipped) {
+          yield v
+        }
+
+        if (!pred(v)) {
+          continue
+        }
+
+        hasSkipped = true
+        yield v
+      }
+    })
+)
 
 module.exports = {
   empty,
@@ -267,5 +394,10 @@ module.exports = {
   range,
   compose,
   curry,
-  fromEvent
+  fromEvent,
+  takeUntil,
+  takeWhile,
+  delay,
+  skipWhile,
+  skipUntil
 };

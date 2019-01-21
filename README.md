@@ -152,3 +152,7 @@ const doubled = range(1, 5, n => n * 2);
     - `range: number -> number? -> (number -> a)? -> Lazy a`
     - `toArray: Lazy a -> Promise Array a`
     - `fromEvent: string -> EventEmitter a -> Lazy a`
+    - `takeUntil: (a -> Bool) -> Lazy a -> Lazy a`
+    - `takeWhile: (a -> Bool) -> Lazy a -> Lazy a`
+    - `skipUntil: (a -> Bool) -> Lazy a -> Lazy a`
+    - `skipWhile: (a -> Bool) -> Lazy a -> Lazy a`
