@@ -23,7 +23,7 @@ const infinite = new Lazy(async function*() {
 
 /**
  * EXAMPLES
- */
+ */asdf
 
 const doubleOnlyOdd = compose(
   map(n => console.log("calling map with %s", n) || n * 2),
