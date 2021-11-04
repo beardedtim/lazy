@@ -1,4 +1,4 @@
-const Lazy = require("./");
+const Lazy = require("./Lazy");
 
 /**
  * Producer is a way to produce values
