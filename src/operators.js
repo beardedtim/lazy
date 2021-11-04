@@ -1,4 +1,4 @@
-const Lazy = require("./");
+const Lazy = require("./Lazy");
 const Producer = require("./producer");
 /**
  * Operators
